@@ -61,7 +61,7 @@ public class DbUpdate {
         return false;
     }
 
-    public static void fillDb(ArrayList<Product> products) throws SQLException {
+    public static boolean fillDb(ArrayList<Product> products) {
         String query = "INSERT INTO products (code, name, price, barcode) VALUES (?, ?, ?, ?);";
         Connection connection = connectToDb();
         PreparedStatement preparedStatement = null;
@@ -113,16 +113,31 @@ public class DbUpdate {
         }catch (SQLException e){
             System.out.println("Error while filling DB: " + e.getMessage());
             if (connection != null) {
-                connection.rollback(); // Откат при ошибке
+                try {
+                    connection.rollback(); // Откат при ошибке
+                }
+                catch (SQLException e1) {
+                    System.out.println("Error while rollback: " + e1.getMessage());
+                }
             }
+            return false;
         }finally {
             if (preparedStatement != null) {
-                preparedStatement.close(); // Закрываем PreparedStatement
+                try {
+                    preparedStatement.close(); // Закрываем PreparedStatement
+                }catch (SQLException e){
+                    System.out.println("Error while closing prepared statement: " + e.getMessage());
+                }
             }
             if (connection != null) {
-                connection.close(); // Закрываем соединение
+                try {
+                    connection.close(); // Закрываем соединение
+                }catch (SQLException e){
+                    System.out.println("Error while closing connection: " + e.getMessage());
+                }
             }
         }
+        return true;
 
     }
 
@@ -147,7 +162,7 @@ public class DbUpdate {
             System.out.println("Класс не загружен");
         }
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:/Users/daniilzhogolev/Documents/Projects/PriceChecker/src/main/resources/com/ed/pricechecker/db.db");
+            connection = DriverManager.getConnection("jdbc:sqlite:/Users/daniilzhogolev/Documents/Projects/PriceCheckApp/src/main/resources/db.db");
             System.out.println("Соединение с бд установлено");
             connection.setAutoCommit(false);
             return connection;
