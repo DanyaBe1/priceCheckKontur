@@ -162,7 +162,7 @@ public class DbUpdate {
             System.out.println("Класс не загружен");
         }
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:/Users/daniilzhogolev/Documents/Projects/PriceCheckApp/src/main/resources/db.db");
+            connection = DriverManager.getConnection("jdbc:sqlite:/home/skazka/priceCheckKontur/src/main/resources/db.db");
             System.out.println("Соединение с бд установлено");
             connection.setAutoCommit(false);
             return connection;
