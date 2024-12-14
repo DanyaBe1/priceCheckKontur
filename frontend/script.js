@@ -1,22 +1,23 @@
 document.getElementById('barcodeInput').addEventListener('input', async function(event) {
-    const barcode = document.getElementById('barcodeInput').value.trim();
-    const resultDiv = document.getElementById('result');
+    const barcodeInput = document.getElementById('barcodeInput');
+    let barcode = barcodeInput.value;
 
-    // Проверяем, если был введен символ переноса строки (например, \r, \n или \r\n)
-    if (barcode.endsWith('\r') || barcode.endsWith('\n')) {
-        await checkPrice();
+    // Убираем символы переноса строки \r и \n, которые могут быть добавлены сканером
+    barcode = barcode.replace(/[\r\n]+$/, '').trim();
+
+    // Если строка пустая, не выполняем запрос
+    if (barcode === '') {
+        return;
+    }
+
+    // Если после удаления символов переноса строки поле не пустое, запускаем проверку
+    if (event.inputType === 'insertText' && barcode.length > 0) {
+        await checkPrice(barcode);
     }
 });
 
-async function checkPrice() {
-    const barcode = document.getElementById('barcodeInput').value.trim();
+async function checkPrice(barcode) {
     const resultDiv = document.getElementById('result');
-
-    if (!barcode) {
-        resultDiv.textContent = "Отсканируйте штрих-код";
-        resultDiv.style.display = "block";
-        return;
-    }
 
     resultDiv.textContent = "Идет поиск...";
     resultDiv.style.display = "block";
