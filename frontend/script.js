@@ -1,5 +1,9 @@
-document.getElementById('barcodeInput').addEventListener('keydown', async function(event) {
-    if (event.key === 'Enter') {
+document.getElementById('barcodeInput').addEventListener('input', async function(event) {
+    const barcode = document.getElementById('barcodeInput').value.trim();
+    const resultDiv = document.getElementById('result');
+
+    // Проверяем, если был введен символ переноса строки (например, \r, \n или \r\n)
+    if (barcode.endsWith('\r') || barcode.endsWith('\n')) {
         await checkPrice();
     }
 });
