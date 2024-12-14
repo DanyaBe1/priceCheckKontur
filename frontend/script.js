@@ -1,17 +1,12 @@
-document.getElementById('barcodeInput').addEventListener('input', async function(event) {
+document.getElementById('barcodeInput').addEventListener('blur', async function(event) {
     const barcodeInput = document.getElementById('barcodeInput');
     let barcode = barcodeInput.value;
 
     // Убираем символы переноса строки \r и \n, которые могут быть добавлены сканером
     barcode = barcode.replace(/[\r\n]+$/, '').trim();
 
-    // Если строка пустая, не выполняем запрос
-    if (barcode === '') {
-        return;
-    }
-
-    // Если после удаления символов переноса строки поле не пустое, запускаем проверку
-    if (event.inputType === 'insertText' && barcode.length > 0) {
+    // Если строка не пустая, вызываем функцию проверки
+    if (barcode !== '') {
         await checkPrice(barcode);
     }
 });
