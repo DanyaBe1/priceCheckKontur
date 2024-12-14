@@ -1,9 +1,15 @@
+document.getElementById('barcodeInput').addEventListener('keydown', async function(event) {
+    if (event.key === 'Enter') {
+        await checkPrice();
+    }
+});
+
 async function checkPrice() {
     const barcode = document.getElementById('barcodeInput').value.trim();
     const resultDiv = document.getElementById('result');
 
     if (!barcode) {
-        resultDiv.textContent = "Введите штрих-код";
+        resultDiv.textContent = "Отсканируйте штрих-код";
         resultDiv.style.display = "block";
         return;
     }
