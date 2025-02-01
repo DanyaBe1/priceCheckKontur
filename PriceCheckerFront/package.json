@@ -1,0 +1,26 @@
+{
+  "name": "pricecheckerfront",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "package": "electron-builder"
+  },
+  "build": {
+    "appId": "com.example.pricechecker",
+    "linux": {
+       "target": "AppImage"
+  }
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "PriceChecker Frontend application",
+  "dependencies": {
+    
+  },
+  "devDependencies": {
+    "electron-builder": "^25.1.8",
+    "electron": "^34.0.1"
+  }
+}
