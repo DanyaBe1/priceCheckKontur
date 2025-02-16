@@ -20,10 +20,10 @@ public class FillDBServlet extends HttpServlet {
         ArrayList<Product> products = KonturList.getProductsList();
         Gson gson = new Gson();
         if (DbUpdate.fillDb(products)){
-            UTILS.responseConstructor(resp, req, gson.toJson("DataBase has been filled successfully"));
+            UTILS.responseConstructor(resp, req, "DataBase has been filled successfully");
         }
         else {
-            UTILS.responseConstructor(resp, req, gson.toJson("DataBase could not be filled"));
+            UTILS.badResponseConstructor(resp, req, "DataBase could not be filled");
         }
 
     }

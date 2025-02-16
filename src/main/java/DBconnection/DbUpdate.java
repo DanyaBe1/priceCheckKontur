@@ -1,32 +1,44 @@
 package DBconnection;
 
+import UTILS.Config;
 import models.Product;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class DbUpdate {
+    private static final Logger log = LogManager.getLogger(DbUpdate.class);
+
     private static Connection connection;
 
     public static boolean updateProducts() throws IOException, InterruptedException {
+        log.info("Updating products");
         ArrayList<Product> products = KonturList.getProductsList();
+        Set<Integer> productCodes = new HashSet<Integer>();
         if (products == null || products.isEmpty()) {
-            System.out.println("Список товаров пуст.");
+            log.error("Список товаров пуст. Проблема с KonturAPI");
             return false;
         }
         connection = connectToDb();
         String query = "SELECT * FROM products";
         int updatedRows = 0;
-        String name;
         String barcode;
         Double price;
+        int code;
         try (PreparedStatement preparedStatement = connection.prepareStatement(query);){
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 barcode = resultSet.getString("barcode");
                 price = resultSet.getDouble("price");
+                code = resultSet.getInt("code");
+                productCodes.add(code);
                 if (barcode == null || barcode.isEmpty() || price == null) {
                     continue;
                 }
@@ -37,17 +49,29 @@ public class DbUpdate {
                         if (newPrice != null && Math.abs(product.getPrice() - price) > 0.0001) {
                             setPrice(product.getPrice(), barcode, connection);
                             updatedRows++;
-                            System.out.println("Обновлена цена на " + resultSet.getString("name") + "\nПредыдущая цена: " + price + "\nНовая цена: " + product.getPrice() + "\n");
+                            log.info("Обновлена цена на {} Предыдущая цена: {} Новая цена: {}", resultSet.getString("name"), price, product.getPrice());
                         }
                         break;
                     }
                 }
             }
-            System.out.println("\nБыло обновлено " + updatedRows + " товаров\n");
+            for (Product product : products) {
+                if (!(productCodes.contains(product.getCode()))) {
+                    if (!addProduct(product, connection)) {
+                        log.warn("Товар не был добавлен");
+                        return false;
+                    }
+                    else {
+                        log.info("Был добавлен товар: {}, цена: {}, код: {}", product.getName(), product.getPrice(), product.getCode());
+                        updatedRows++;
+                    }
+                }
+            }
+            log.info("Было обновлено {} товаров", updatedRows);
             updatedRows = 0;
             return true;
         }catch (SQLException e){
-            System.out.println("БД не обновлена");
+            log.error("БД не обновлена", e);
         }
         finally {
             try {
@@ -55,10 +79,52 @@ public class DbUpdate {
                     connection.close();
                 }
             }catch (SQLException e){
-                System.out.println("Соединение с бд не было закрыто в блоке finally метода updateProducts()");
+                log.error("Соединение с бд не было закрыто в блоке finally метода updateProducts()");
             }
         }
         return false;
+    }
+
+    private static boolean addProduct(Product product, Connection connection) {
+        String query = "INSERT INTO products (code, name, price, barcode) VALUES (?, ?, ?, ?);";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query);){
+            preparedStatement.setInt(1, product.getCode());
+            preparedStatement.setString(2, product.getName());
+            if (product.getPrice() != null) {
+                preparedStatement.setDouble(3, product.getPrice());
+            } else {
+                preparedStatement.setNull(3, java.sql.Types.DOUBLE);
+            }
+            List<String> barcodes = product.getBarcodes();
+            if (barcodes == null){
+                preparedStatement.setNull(4, java.sql.Types.VARCHAR);
+                preparedStatement.addBatch();
+            }
+            else if (barcodes.size() == 1) {
+                preparedStatement.setString(4, barcodes.get(0));
+                preparedStatement.addBatch();
+            } else if (barcodes.size() > 1) {
+                preparedStatement.setString(4, barcodes.get(0));
+                preparedStatement.addBatch();
+                for (int k = 1; k < barcodes.size(); k++) {
+                    preparedStatement.setInt(1, product.getCode());
+                    preparedStatement.setString(2, product.getName());
+                    if (product.getPrice() != null) {
+                        preparedStatement.setDouble(3, product.getPrice());
+                    } else {
+                        preparedStatement.setNull(3, java.sql.Types.DOUBLE);
+                    }
+                    preparedStatement.setString(4, barcodes.get(k));
+                    preparedStatement.addBatch();
+                }
+            }
+            preparedStatement.executeBatch();
+            connection.commit();
+            return true;
+        }catch (SQLException e){
+            log.warn("Единичное добавление товара не выполнено", e);
+            return false;
+        }
     }
 
     public static boolean fillDb(ArrayList<Product> products) {
@@ -111,13 +177,13 @@ public class DbUpdate {
             preparedStatement.executeBatch();
             connection.commit();
         }catch (SQLException e){
-            System.out.println("Error while filling DB: " + e.getMessage());
+            log.error("Error while filling DB", e);
             if (connection != null) {
                 try {
                     connection.rollback(); // Откат при ошибке
                 }
                 catch (SQLException e1) {
-                    System.out.println("Error while rollback: " + e1.getMessage());
+                    log.error("Error while rollback", e1);
                 }
             }
             return false;
@@ -126,14 +192,14 @@ public class DbUpdate {
                 try {
                     preparedStatement.close(); // Закрываем PreparedStatement
                 }catch (SQLException e){
-                    System.out.println("Error while closing prepared statement: " + e.getMessage());
+                    log.error("Error while closing prepared statement", e);
                 }
             }
             if (connection != null) {
                 try {
                     connection.close(); // Закрываем соединение
                 }catch (SQLException e){
-                    System.out.println("Error while closing connection: " + e.getMessage());
+                    log.error("Error while closing connection", e);
                 }
             }
         }
@@ -159,15 +225,15 @@ public class DbUpdate {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            System.out.println("Класс не загружен");
+            log.error("Класс не загружен");
         }
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:/home/skazka/priceCheckKontur/src/main/resources/db.db");
-            System.out.println("Соединение с бд установлено");
+            connection = DriverManager.getConnection(Config.getDatabaseUrl());
+            log.info("Соединение с бд установлено");
             connection.setAutoCommit(false);
             return connection;
         } catch (SQLException e) {
-            System.out.println("Подключение к бд не установлено");
+            log.error("Подключение к бд не установлено");
         }
         return null;
     }

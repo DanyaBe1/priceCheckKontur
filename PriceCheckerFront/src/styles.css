@@ -1,83 +1,171 @@
-/* Подключаем шрифт Montserrat */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 
 body {
     margin: 0;
-    padding: 0;
+    padding: 20px;
     font-family: 'Montserrat', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #007bff, #6610f2);
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0051a8, #4a00e0);
     color: #fff;
+    user-select: none;
+    overflow: hidden; /* Убираем скроллинг */
 }
 
 .container {
     text-align: center;
     background: #fff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    width: 350px;
-}
-
-input[type="text"] {
-    text-align: center;
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 600px;
 }
 
 h1 {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
-    font-weight: 600;
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.button-container {
+    position: fixed; /* Фиксируем контейнер */
+    top: 20px; /* Отступ сверху */
+    right: 20px; /* Отступ справа */
+    z-index: 1000; /* Убедимся, что кнопка поверх других элементов */
+}
+
+.update-btn {
+    padding: 15px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #28a745;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.update-btn:hover:not(:disabled) {
+    background: #218838;
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+.update-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.refresh-icon {
+    width: 30px;
+    height: 30px;
 }
 
 .input-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 35px;
 }
 
 input[type="text"] {
     width: 100%;
-    padding: 10px 15px;
-    font-size: 16px;
-    border: 2px solid #007bff;
-    border-radius: 8px;
+    padding: 25px 20px;
+    font-size: 1.8rem;
+    border: 4px solid #007bff;
+    border-radius: 15px;
     outline: none;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    color: #2c3e50;
+    text-align: center;
+}
+
+input[type="text"]::placeholder {
+    color: #95a5a6;
+    font-weight: 400;
+    opacity: 0.8;
 }
 
 input[type="text"]:focus {
-    border-color: #6610f2;
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #fff;
-    background: #007bff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-weight: 600;
-}
-
-button:hover {
-    background: #0056b3;
+    border-color: #0056b3;
+    box-shadow: 0 0 15px rgba(0,123,255,0.4);
 }
 
 .result {
-    font-size: 18px;
-    color: #333;
+    font-size: 2rem;
+    color: #2c3e50;
     background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     display: none;
-    margin-top: 10px;
+    margin-top: 30px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.product-name {
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #34495e;
+    font-size: 2.2rem;
+}
+
+.product-price {
+    font-weight: 900;
+    font-size: 3.5rem;
+    color: #27ae60;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+}
+
+.status-message {
+    font-size: 1.2rem;
+    margin-top: 15px;
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.status-message.success {
+    background: #28a745;
+    border: 2px solid #218838;
+}
+
+.status-message.warning {
+    background: #ffc107;
+    border: 2px solid #e0a800;
+    color: #343a40;
+}
+
+.status-message.error {
+    background: #dc3545;
+    border: 2px solid #c82333;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 30px 20px;
+        margin: 15px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    input[type="text"] {
+        font-size: 1.5rem;
+        padding: 20px 15px;
+    }
 }

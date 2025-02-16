@@ -2,7 +2,6 @@ package servlets;
 
 import DBconnection.DbUpdate;
 import UTILS.UTILS;
-import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,11 +14,15 @@ public class UpdateProductsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            DbUpdate.updateProducts();
+            if(DbUpdate.updateProducts()){
+                UTILS.responseConstructor(resp, req, "DB has been updated");
+            }
+            else {
+                UTILS.badResponseConstructor(resp, req, "Update failed");
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        Gson json = new Gson();
-        UTILS.responseConstructor(resp, req, json.toJson("DB has been updated"));
+
     }
 }

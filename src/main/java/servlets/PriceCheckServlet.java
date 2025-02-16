@@ -34,7 +34,7 @@ public class PriceCheckServlet extends HttpServlet{
         if (product != null) {
             Gson gson = new Gson();
             String json = gson.toJson(product);
-            UTILS.responseConstructor(resp, req, json);
+            UTILS.productResponseConstructor(resp, req, json);
         }
         else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Товар не найден");

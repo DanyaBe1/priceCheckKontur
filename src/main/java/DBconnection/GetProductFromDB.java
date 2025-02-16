@@ -1,6 +1,8 @@
 package DBconnection;
 
 import models.Product;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class GetProductFromDB {
+    private static final Logger log = LogManager.getLogger(GetProductFromDB.class);
+
     public static Product getProductFromDB(String barcode) throws SQLException {
         Connection connection = DbUpdate.connectToDb();
         Product product = new Product();
@@ -21,7 +25,7 @@ public class GetProductFromDB {
             }
             return product;
         } catch (SQLException e) {
-            System.out.println("Запрос не выполнен");;
+            log.error("Запрос не выполнен");;
         }finally {
             connection.close();
         }

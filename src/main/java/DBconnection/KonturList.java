@@ -1,5 +1,6 @@
 package DBconnection;
 
+import UTILS.Config;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -15,8 +16,8 @@ import java.util.ArrayList;
 
 public class KonturList {
     public static ArrayList<Product> getProductsList() throws IOException{
-        String shopId = "64094396-0da1-431a-9c3f-e0e61d9f539e";
-        String apikey = "9616a96c-cf17-17d4-d341-cf6186ea6433";
+        String shopId = Config.getShopId();
+        String apikey = Config.getApiKey();
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.kontur.ru/market/v1/shops/" + shopId + "/products"))

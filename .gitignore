@@ -1,6 +1,9 @@
 PriceCheckerFront/dist/
 PriceCheckerFront/node_modules/
 target/
+src/main/resources/logs/
+src/main/resources/db.db
+src/main/resources/config.properties
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
